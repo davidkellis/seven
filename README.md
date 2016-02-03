@@ -15,3 +15,6 @@ Trading simulator (attempt #7). This time in Scala.
 
 1. git clone git@github.com:davidkellis/seven.git
 2. sbt compile
+
+
+### Implementation Notes

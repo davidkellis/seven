@@ -1,5 +1,7 @@
 package com.github.davidkellis.seven.domain
 
-class Security(val id: Int) {
+import CoreTypes.SecurityId
+
+class Security(val id: SecurityId) {
 
 }

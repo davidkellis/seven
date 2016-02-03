@@ -1,35 +1,30 @@
 package com.github.davidkellis.seven.domain
 
-import com.github.davidkellis.seven.Time
+import com.github.davidkellis.seven.domain.CoreTypes.Decimal
 
-import scala.collection.mutable
+import scala.util.Try
 
 trait Broker {
-  // returns true if order was successfully placed; false otherwise
-  def placeOrder(account: BrokerageAccount, order: Order): Boolean
+  def placeOrder(account: BrokerageAccount, order: Order): Try[Unit]
 
-  // returns true if order was successfully cancelled; false otherwise
-  def cancelOrder(order: Order): Boolean
+  def cancelOrder(order: Order): Try[Unit]
 }
 
 trait SimulatedBroker extends Broker {
-  def executeOrders(time: Time.Timestamp): Order
+  // when the exchange fills the order, it calls the broker's notifyOrderFilled method to tell the broker that the order was filled
+  def notifyOrderFilled(order: Order): Unit
 }
 
 // Simulated Scottrade broker
-class ScottradeSim() extends SimulatedBroker {
-  val unfilledOrders = mutable.ListBuffer.empty[Order]
-
-  def placeOrder(account: BrokerageAccount, order: Order): Boolean = {
+class ScottradeSim(val exchange: Exchange, val commissionPerTrade: Decimal = 7.0) extends SimulatedBroker {
+  def placeOrder(account: BrokerageAccount, order: Order): Try[Unit] = {
     order.status = Open
-    unfilledOrders += order
-    true
+    exchange.placeOrder(order)
   }
 
-  def cancelOrder(order: Order): Boolean = {
-    unfilledOrders -= order
-    true
+  def cancelOrder(order: Order): Try[Unit] = {
+    exchange.cancelOrder(order)
   }
 
-  def executeOrders(time: Time.Timestamp): Unit = ???
+  def notifyOrderFilled(order: Order): Unit = ???
 }

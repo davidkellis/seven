@@ -1,5 +1,8 @@
 package com.github.davidkellis.seven.domain
 
+import java.util.UUID
+
+import CoreTypes.Decimal
 import com.github.davidkellis.seven.Time
 
 // modeled after docs at https://content.etrade.com/etrade/estation/pdf/API_Technical_Documentation.pdf
@@ -41,6 +44,7 @@ case object FillOrKill extends OrderTerm
 
 // we are only implementing single-leg orders right now
 case class Order(
+  id: UUID,
   account: BrokerageAccount,
   var status: OrderStatus,
   kind: OrderKind,
@@ -48,18 +52,18 @@ case class Order(
   action: OrderAction,
   term: OrderTerm,
   securityId: Int,
-  quantity: Double,
+  quantity: Long,
   allOrNone: Boolean,
   timePlaced: Time.Timestamp,
-  var filledQuantity: Option[Double],
-  var executedPrice: Option[Double],
-  var commission: Option[Double],
+  var filledQuantity: Option[Long],
+  var executedPrice: Option[Decimal],
+  var commission: Option[Decimal],
   var timeExecuted: Option[Time.Timestamp],
-  var limitPrice: Option[Double],
-  var stopPrice: Option[Double],
-  var stopLimitPrice: Option[Double]
+  var limitPrice: Option[Decimal],
+  var stopPrice: Option[Decimal],
+  var stopLimitPrice: Option[Decimal]
 )
 
 object Order {
-  val buildMarketBuy = Order(_, Open, _, Market, Buy, GoodForDay, _, _, false, _, None, None, None, None, None, None, None)
+  val buildMarketBuy = Order(java.util.UUID.randomUUID, _, Open, _, Market, Buy, GoodForDay, _, _, false, _, None, None, None, None, None, None, None)
 }
