@@ -11,6 +11,8 @@ object CoreTypes {
   type OrderQueue = scala.collection.mutable.Set[Order]
   type OrderHistory = util.TreeMap[Timestamp, Order]
 
+  type FillPriceFn = (Order) => Decimal
+
   trait TradingEvent
   case object ReEvaluate extends TradingEvent
   case object PriceChange extends TradingEvent

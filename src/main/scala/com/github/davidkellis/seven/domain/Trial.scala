@@ -5,9 +5,5 @@ import org.joda.time.DateTime
 
 case class Trial(
                   startTime: DateTime,
-                  endTime: DateTime,
-
-                  schedule: Schedule,
-                  purchaseFillPrice: PriceQuoteFn,
-                  saleFillPrice: PriceQuoteFn
+                  endTime: DateTime
                 )

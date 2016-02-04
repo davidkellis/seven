@@ -1,6 +1,6 @@
 package com.github.davidkellis.seven.domain
 
-import CoreTypes.SecurityId
+import com.github.davidkellis.seven.domain.CoreTypes.{FillPriceFn, SecurityId}
 import org.joda.time.DateTime
 
 import scala.collection.mutable
@@ -40,7 +40,7 @@ class ConsolidatedOrderBook() {
 }
 
 
-class SimExchange() extends Exchange {
+class SimExchange(fillPriceFn: FillPriceFn) extends Exchange {
   var orderQueue = ListBuffer.empty[Order]
   var orderCancellations = mutable.Set.empty[Order]
   var orderBook = new ConsolidatedOrderBook()

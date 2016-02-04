@@ -25,7 +25,12 @@ object BuyAndHold {
   object Scenarios {
     def runSingleBuyAndHoldTrial(dao: Dao): Unit = {
       val simulator = new Simulator()
-      val exchange = new SimExchange()
+      val fillPriceFn = (order: Order) => order.action match {
+        case Buy => ???
+        case Sell => ???
+        case _ => throw new Exception("Unknown order action. Unable to calculate simulated fill price.")
+      }
+      val exchange = new SimExchange(fillPriceFn)
       val broker = new ScottradeSim(exchange, 7.0)
       val portfolio = new Portfolio(10000.0)
       val account = new BrokerageAccount(broker, portfolio)

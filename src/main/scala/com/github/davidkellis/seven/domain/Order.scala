@@ -15,10 +15,10 @@ case object CancelRequested extends OrderStatus
 case object Expired extends OrderStatus
 case object Rejected extends OrderStatus
 
-sealed trait OrderKind
-case object Equity extends OrderKind
-case object Option extends OrderKind
-case object Spread extends OrderKind
+sealed trait SecurityType
+case object Equity extends SecurityType
+case object OptionsContract extends SecurityType
+case object FuturesContract extends SecurityType
 
 sealed trait PriceType
 case object Market extends PriceType
@@ -44,24 +44,24 @@ case object FillOrKill extends OrderTerm
 
 // we are only implementing single-leg orders right now
 case class Order(
-  id: UUID,
-  account: BrokerageAccount,
-  var status: OrderStatus,
-  kind: OrderKind,
-  priceType: PriceType,
-  action: OrderAction,
-  term: OrderTerm,
-  securityId: Int,
-  quantity: Long,
-  allOrNone: Boolean,
-  timePlaced: Time.Timestamp,
-  var filledQuantity: Option[Long],
-  var executedPrice: Option[Decimal],
-  var commission: Option[Decimal],
-  var timeExecuted: Option[Time.Timestamp],
-  var limitPrice: Option[Decimal],
-  var stopPrice: Option[Decimal],
-  var stopLimitPrice: Option[Decimal]
+                  id: UUID,
+                  account: BrokerageAccount,
+                  var status: OrderStatus,
+                  securityType: SecurityType,
+                  priceType: PriceType,
+                  action: OrderAction,
+                  term: OrderTerm,
+                  securityId: Int,
+                  quantity: Long,
+                  allOrNone: Boolean,
+                  timePlaced: Time.Timestamp,
+                  var filledQuantity: Option[Long],
+                  var executedPrice: Option[Decimal],
+                  var commission: Option[Decimal],
+                  var timeExecuted: Option[Time.Timestamp],
+                  var limitPrice: Option[Decimal],
+                  var stopPrice: Option[Decimal],
+                  var stopLimitPrice: Option[Decimal]
 )
 
 object Order {
