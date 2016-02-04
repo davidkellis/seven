@@ -39,8 +39,7 @@ object BuyAndHold {
       val strategy = new BuyAndHoldSingle(account, appl)
       val trial = new Trial(
         Time.datetime(2000, January, 1),
-        Time.datetime(2016, January, 1),
-
+        Time.datetime(2016, January, 1)
       )
       simulator.run(trial)
     }
