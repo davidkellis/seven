@@ -17,10 +17,14 @@ libraryDependencies  ++= Seq(
   "org.joda" % "joda-convert" % "1.8",
   "com.github.nscala-time" %% "nscala-time" % "2.6.0",
 
-  "net.sf.ehcache" % "ehcache" % "2.10.1"
+  "net.sf.ehcache" % "ehcache" % "2.10.1",
+
+  "org.rogach" %% "scallop" % "0.9.5",
+  "com.typesafe" % "config" % "1.3.0",
+
+  "org.scalikejdbc" %% "scalikejdbc" % "2.3.4"
 
 //  "postgresql" % "postgresql" % "9.1-901.jdbc4",
-//  "org.rogach" % "scallop_2.10" % "0.9.5",
 //  "org.json4s" %% "json4s-jackson" % "3.2.9",
 //  "com.lambdaworks" % "jacks_2.11" % "2.3.3",
 //  "net.sandrogrzicic" %% "scalabuff-runtime" % "1.3.8",

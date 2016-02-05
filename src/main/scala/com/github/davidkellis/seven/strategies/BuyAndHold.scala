@@ -9,13 +9,20 @@ import org.joda.time.DateTime
 
 object BuyAndHold {
 
+  trait CurrentState
+  case object NotInvested extends CurrentState
+  case object Invested extends CurrentState
+
   class BuyAndHoldSingle(account: BrokerageAccount, security: Security) extends Strategy {
-    def initialize(): Unit = {
-    }
+    var currentState = NotInvested
 
     def evaluate(time: DateTime, event: TradingEvent): Unit = {
-      if (canAfford(security, account)) {
-
+      currentState match {
+        case NotInvested =>
+          if (canAfford(security, account)) {
+            account.buyStock(security, )
+          }
+        case Invested =>
       }
     }
 

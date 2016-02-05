@@ -30,6 +30,6 @@ trait Dao {
   def queryAnnualReports(securityId: SecurityId, earliestTime: DateTime, latestTime: DateTime): Seq[AnnualReport]
 }
 
-//class PostgresDao() extends Dao {
-//
-//}
+class PostgresDao() extends Dao {
+
+}
