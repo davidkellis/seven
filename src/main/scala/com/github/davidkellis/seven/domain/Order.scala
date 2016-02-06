@@ -62,7 +62,7 @@ case class Order(
                   var limitPrice: Option[Decimal],
                   var stopPrice: Option[Decimal],
                   var stopLimitPrice: Option[Decimal]
-)
+                )
 
 object Order {
   val buildMarketBuy = Order(java.util.UUID.randomUUID, _, Open, _, Market, Buy, GoodForDay, _, _, false, _, None, None, None, None, None, None, None)

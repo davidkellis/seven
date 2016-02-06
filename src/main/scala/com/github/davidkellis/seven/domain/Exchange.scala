@@ -7,14 +7,6 @@ import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.util.{Success, Try}
 
-trait Exchange {
-  def placeOrder(order: Order): Try[Unit]
-
-  def cancelOrder(order: Order): Try[Unit]
-
-  def fillOrders(time: DateTime): Try[Unit]
-}
-
 object OrderBook {
   def empty(): OrderBook = new OrderBook()
 }
@@ -39,8 +31,24 @@ class ConsolidatedOrderBook() {
   }
 }
 
-
-class SimExchange(fillPriceFn: FillPriceFn) extends Exchange {
+object Exchange {
+  def unapply(exchange: Exchange): Option[(Long, String, String, Boolean, Option[Long])] = {
+    Some(
+      (
+        exchange.id,
+        exchange.label,
+        exchange.name,
+        exchange.isCompositeExchange,
+        exchange.compositeExchangeId
+      )
+    )
+  }
+}
+class Exchange(val id: Long,
+               val label: String,
+               val name: String,
+               val isCompositeExchange: Boolean,
+               val compositeExchangeId: Option[Long]) {
   var orderQueue = ListBuffer.empty[Order]
   var orderCancellations = mutable.Set.empty[Order]
   var orderBook = new ConsolidatedOrderBook()
@@ -55,7 +63,7 @@ class SimExchange(fillPriceFn: FillPriceFn) extends Exchange {
     Success()
   }
 
-  def fillOrders(time: DateTime): Try[Unit] = {
+  def fillOrders(time: DateTime, fillPriceFn: FillPriceFn): Try[Unit] = {
     // 1. cancel orders
 
     // 2. fill orders
