@@ -1,6 +1,6 @@
 package com.github.davidkellis.seven.domain
 
-import com.github.davidkellis.seven.domain.CoreTypes.{FillPriceFn, SecurityId}
+import com.github.davidkellis.seven.domain.CoreTypes.{FillPriceFn, IntegerId}
 import org.joda.time.DateTime
 
 import scala.collection.mutable
@@ -15,16 +15,16 @@ class OrderBook() {
 }
 
 class ConsolidatedOrderBook() {
-  var orderBooks = mutable.Map.empty[SecurityId, OrderBook]
+  var orderBooks = mutable.Map.empty[IntegerId, OrderBook]
 
   def add(order: Order): Unit = {
     val orderBook = getOrderBook(order.securityId).getOrElse(addNewOrderBook(order.securityId))
     orderBook.add(order)
   }
 
-  private def getOrderBook(securityId: SecurityId): Option[OrderBook] = orderBooks.get(securityId)
+  private def getOrderBook(securityId: IntegerId): Option[OrderBook] = orderBooks.get(securityId)
 
-  private def addNewOrderBook(securityId: SecurityId): OrderBook = {
+  private def addNewOrderBook(securityId: IntegerId): OrderBook = {
     val newOrderBook = OrderBook.empty
     orderBooks += (securityId -> newOrderBook)
     newOrderBook

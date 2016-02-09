@@ -5,19 +5,30 @@ import org.joda.time.Interval
 import com.github.davidkellis.seven.Time.{compareDateTimes, intervalBetween}
 
 object MInterval {
-  type MInterval = scala.collection.immutable.IndexedSeq[Interval]
+  def empty: MInterval = new MInterval(Array.empty[Interval])
+}
 
-  val emptyMInterval: MInterval = Vector()
+class MInterval(var intervals: Array[Interval]) {
+  intervals = intervals.sortBy(_.getStart)
 
-  def createMInterval(intervals: IndexedSeq[Interval]): MInterval = intervals.toVector.sortBy(_.getStart)
-
-  // represents the computation: minuend - subtrahend = difference
-  def subtractMInterval(minuend: MInterval, subtrahend: MInterval): MInterval = {
-    val mintervals = for(m <- minuend; s <- subtrahend) yield subtractInterval(m, s)
-    createMInterval(mintervals.flatten)
+  def this(interval: Interval) {
+    this(Array(interval))
   }
 
-  /*
+  def overlaps(that: MInterval): Boolean = {
+    val intervalPairs = for(i1 <- this.intervals; i2 <- that.intervals) yield (i1, i2)
+    intervalPairs.exists(pair => pair._1.overlaps(pair._2))
+  }
+
+  def isEmpty: Boolean = intervals.isEmpty
+
+  // represents the computation: minuend (represented by this) - subtrahend = difference
+  def -(subtrahend: MInterval): MInterval = {
+    val mIntervals = for(m <- this.intervals; s <- subtrahend.intervals) yield subtractInterval(m, s)
+    new MInterval(mIntervals.flatMap(_.intervals))
+  }
+
+  /**
    * Returns a vector of intervals (a.k.a. a vinterval), each representing a portion of the remaining interval after
    *   the subtrahend interval has been subtracted from the minuend interval.
    *   In other words, (subtract-interval b c) === c - b.
@@ -29,7 +40,7 @@ object MInterval {
    *   c − b = a
    *   are minuend (c) − subtrahend (b) = difference (a).
    */
-  def subtractInterval(minuend: Interval, subtrahend: Interval): MInterval = {
+  private def subtractInterval(minuend: Interval, subtrahend: Interval): MInterval = {
     if (subtrahend.overlaps(minuend)) {
       val startMinuend = minuend.getStart
       val endMinuend = minuend.getEnd
@@ -40,39 +51,34 @@ object MInterval {
         case -1 =>        // startMinuend < startSubtrahend
           compareDateTimes(endMinuend, endSubtrahend) match {
             case -1 =>    // endMinuend < endSubtrahend
-              Vector(intervalBetween(startMinuend, startSubtrahend))
+              new MInterval(intervalBetween(startMinuend, startSubtrahend))
             case 1 =>     // endMinuend > endSubtrahend
-              Vector(intervalBetween(startMinuend, startSubtrahend),
-                     intervalBetween(endSubtrahend, endMinuend))
+              new MInterval(Array(
+                intervalBetween(startMinuend, startSubtrahend),
+                intervalBetween(endSubtrahend, endMinuend)
+              ))
             case 0 =>     // endMinuend == endSubtrahend
-              Vector(intervalBetween(startMinuend, startSubtrahend))
+              new MInterval(intervalBetween(startMinuend, startSubtrahend))
           }
         case 1 =>         // startMinuend > startSubtrahend
           compareDateTimes(endMinuend, endSubtrahend) match {
             case -1 =>    // endMinuend < endSubtrahend
-              emptyMInterval
+              MInterval.empty
             case 1 =>     // endMinuend > endSubtrahend
-              Vector(intervalBetween(endSubtrahend, endMinuend))
+              new MInterval(intervalBetween(endSubtrahend, endMinuend))
             case 0 =>     // endMinuend == endSubtrahend
-              emptyMInterval
+              MInterval.empty
           }
         case 0 =>         // startMinuend == startSubtrahend
           compareDateTimes(endMinuend, endSubtrahend) match {
             case -1 =>    // endMinuend < endSubtrahend
-              emptyMInterval
+              MInterval.empty
             case 1 =>     // endMinuend > endSubtrahend
-              Vector(intervalBetween(endSubtrahend, endMinuend))
+              new MInterval(intervalBetween(endSubtrahend, endMinuend))
             case 0 =>     // endMinuend == endSubtrahend
-              emptyMInterval
+              MInterval.empty
           }
       }
-    } else Vector(minuend)
+    } else new MInterval(minuend)
   }
-
-  def overlaps(mInterval1: MInterval, mInterval2: MInterval): Boolean = {
-    val intervalPairs = for(i1 <- mInterval1; i2 <- mInterval2) yield (i1, i2)
-    intervalPairs.exists(pair => pair._1.overlaps(pair._2))
-  }
-
-  def isEmpty(mInterval: MInterval): Boolean = mInterval.isEmpty
 }

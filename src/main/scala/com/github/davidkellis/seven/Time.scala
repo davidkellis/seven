@@ -7,26 +7,18 @@ import scala.util.Random
 
 object Time {
   implicit def dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(isBefore(_, _))
-
   implicit def localDateOrdering: Ordering[LocalDate] = Ordering.fromLessThan[LocalDate](_.isBefore(_))
 
   type Timestamp = Long
   type Datestamp = Int
 
   sealed trait DayOfWeek
-
   case object Monday extends DayOfWeek
-
   case object Tuesday extends DayOfWeek
-
   case object Wednesday extends DayOfWeek
-
   case object Thursday extends DayOfWeek
-
   case object Friday extends DayOfWeek
-
   case object Saturday extends DayOfWeek
-
   case object Sunday extends DayOfWeek
 
   def dayOfWeek(dayOfWeekInt: Int): DayOfWeek = dayOfWeekInt match {
@@ -41,21 +33,14 @@ object Time {
   }
 
   def dayOfWeek(date: LocalDate): DayOfWeek = dayOfWeek(intDayOfWeek(date))
-
   def dayOfWeek(time: DateTime): DayOfWeek = dayOfWeek(intDayOfWeek(time))
 
   def isDateMonday(date: LocalDate) = dayOfWeek(date) == Monday
-
   def isDateTuesday(date: LocalDate) = dayOfWeek(date) == Tuesday
-
   def isDateWednesday(date: LocalDate) = dayOfWeek(date) == Wednesday
-
   def isDateThursday(date: LocalDate) = dayOfWeek(date) == Thursday
-
   def isDateFriday(date: LocalDate) = dayOfWeek(date) == Friday
-
   def isDateSaturday(date: LocalDate) = dayOfWeek(date) == Saturday
-
   def isDateSunday(date: LocalDate) = dayOfWeek(date) == Sunday
 
 
@@ -68,35 +53,21 @@ object Time {
     case Saturday => 6
     case Sunday => 7
   }
-
   def intDayOfWeek(t: DateTime): Int = t.getDayOfWeek()
-
   def intDayOfWeek(t: LocalDate): Int = t.getDayOfWeek()
 
   sealed trait Month
-
   case object January extends Month
-
   case object February extends Month
-
   case object March extends Month
-
   case object April extends Month
-
   case object May extends Month
-
   case object June extends Month
-
   case object July extends Month
-
   case object August extends Month
-
   case object September extends Month
-
   case object October extends Month
-
   case object November extends Month
-
   case object December extends Month
 
   def intMonth(month: Month): Int = month match {
@@ -123,36 +94,24 @@ object Time {
   def currentTime(timeZone: DateTimeZone = EasternTimeZone): DateTime = DateTime.now(timeZone)
 
   def date(time: DateTime): LocalDate = new LocalDate(time.getYear, time.getMonthOfYear, time.getDayOfMonth)
-
   def date(timestamp: Timestamp): LocalDate = date(datetime(timestamp))
-
   def date(year: Int): LocalDate = new LocalDate(year, 1, 1)
-
   //  def date(year: Int, month: Int): LocalDate = new LocalDate(year, month, 1)
   def date(year: Int, month: Int, day: Int): LocalDate = new LocalDate(year, month, day)
-
   def date(year: Int, month: Month, day: Int): LocalDate = new LocalDate(year, intMonth(month), day)
 
   def datestamp(date: LocalDate): Datestamp = date.toString("yyyyMMdd").toInt
-
   def datestamp(time: Timestamp): Datestamp = time.toString.substring(0, 8).toInt
-
   def datestamp(time: DateTime): Datestamp = time.toString("yyyyMMdd").toInt
 
   def datetime(year: Int, month: Int, day: Int): DateTime = datetime(year, month, day, 0, 0, 0)
-
   def datetime(year: Int, month: Month, day: Int): DateTime = datetime(year, intMonth(month), day, 0, 0, 0)
-
   def datetime(year: Int, month: Int, day: Int, hour: Int, minute: Int, second: Int): DateTime =
     new DateTime(year, month, day, hour, minute, second, EasternTimeZone)
-
   def datetime(year: Int, month: Month, day: Int, hour: Int, minute: Int, second: Int): DateTime =
     new DateTime(year, intMonth(month), day, hour, minute, second, EasternTimeZone)
-
   def datetime(date: LocalDate): DateTime = datetime(date.getYear, date.getMonthOfYear, date.getDayOfMonth)
-
   def datetime(date: LocalDate, hour: Int, minute: Int, second: Int): DateTime = datetime(date.getYear, date.getMonthOfYear, date.getDayOfMonth).withTime(hour, minute, second, 0)
-
   def datetime(datestamp: Datestamp): DateTime = {
     val ds = datestamp.toString
     val year = ds.substring(0, 4).toInt
@@ -160,7 +119,6 @@ object Time {
     val day = ds.substring(6, 8).toInt
     datetime(year, month, day)
   }
-
   def datetime(timestamp: Timestamp): DateTime = {
     val ts = timestamp.toString
     val year = ts.substring(0, 4).toInt
@@ -173,31 +131,21 @@ object Time {
   }
 
   def timestamp(date: LocalDate): Timestamp = datetime(date).toString("yyyyMMddHHmmss").toLong
-
   def timestamp(datetime: ReadableDateTime): Timestamp = datetime.toString("yyyyMMddHHmmss").toLong
 
   def midnight(date: LocalDate): DateTime = datetime(date).withTimeAtStartOfDay()
-
   def midnight(datetime: DateTime): DateTime = datetime.withTimeAtStartOfDay()
 
   def years(n: Int): Period = Years.years(n).toPeriod
-
   def months(n: Int): Period = Months.months(n).toPeriod
-
   def weeks(n: Int): Period = Weeks.weeks(n).toPeriod
-
   def days(n: Int): Period = Days.days(n).toPeriod
-
   def hours(n: Int): Period = Hours.hours(n).toPeriod
-
   def minutes(n: Int): Period = Minutes.minutes(n).toPeriod
-
   def seconds(n: Int): Period = Seconds.seconds(n).toPeriod
-
   def millis(n: Long): Period = new Period(n)
 
   def periodBetween(i1: ReadableInstant, i2: ReadableInstant): Period = new Period(i1, i2)
-
   def periodBetween(t1: ReadablePartial, t2: ReadablePartial): Period = new Period(t1, t2)
 
   def durationBetween(t1: DateTime, t2: DateTime): Duration = new Duration(t1, t2)
@@ -205,7 +153,6 @@ object Time {
   def intervalBetween(t1: DateTime, t2: DateTime): Interval = new Interval(t1, t2)
 
   def formatPeriod(period: Period): String = period.toString(ISOPeriodFormat.standard)
-
   def parsePeriod(periodString: String): Period = Period.parse(periodString, ISOPeriodFormat.standard)
 
   // t1 <= instant < t2
@@ -237,21 +184,16 @@ object Time {
   def isAfter(t1: DateTime, t2: DateTime): Boolean = t1.isAfter(t2)
 
   def compareDateTimes(t1: DateTime, t2: DateTime): Int = t1.compareTo(t2)
-
   def compareDateTimes(d1: LocalDate, d2: LocalDate): Int = d1.compareTo(d2)
 
   def isBeforeOrEqual(t1: DateTime, t2: DateTime): Boolean = compareDateTimes(t1, t2) <= 0
-
   def isBeforeOrEqual(d1: LocalDate, d2: LocalDate): Boolean = compareDateTimes(d1, d2) <= 0
 
   def isAfterOrEqual(t1: DateTime, t2: DateTime): Boolean = compareDateTimes(t1, t2) >= 0
-
   def isAfterOrEqual(d1: LocalDate, d2: LocalDate): Boolean = compareDateTimes(d1, d2) >= 0
 
   sealed trait TimeDirection
-
   case object Before extends TimeDirection
-
   case object After extends TimeDirection
 
   def offsetDateTime(t: DateTime, direction: TimeDirection, magnitude: Period): DateTime = direction match {
@@ -310,7 +252,6 @@ object Time {
     interspersedIntervals2(startTimeInterval.getStart, startTimeInterval.getEnd, intervalLength, separationLength)
 
   def daysInMonth(month: Int, year: Int): Int = datetime(year, month, 1).dayOfMonth().getMaximumValue()
-
   def daysInMonth(month: Month, year: Int): Int = datetime(year, month, 1).dayOfMonth().getMaximumValue()
 
   // returns (intMonth, intYear) representing the month and year following the given month and year
@@ -338,15 +279,12 @@ object Time {
   }
 
   def firstDayOfMonth(year: Int, month: Month): LocalDate = date(year, month, 1)
-
   def firstDayOfMonth(year: Int, month: Int): LocalDate = date(year, month, 1)
 
   def lastDayOfMonth(year: Int, month: Month): LocalDate = date(year, month, daysInMonth(month, year))
-
   def lastDayOfMonth(year: Int, month: Int): LocalDate = date(year, month, daysInMonth(year, month))
 
   def nextDay(date: LocalDate): LocalDate = date.plusDays(1)
-
   def previousDay(date: LocalDate): LocalDate = date.minusDays(1)
 
   /**
@@ -522,11 +460,9 @@ object Time {
     nthWeekdayAtOrBeforeDate(1, desiredWeekday, lastDayOfMonth(year, month))
 
   def firstMondayAfter = firstWeekdayAfterDate(Monday, _)
-
   def firstMondayAtOrAfter = firstWeekdayAtOrAfterDate(Monday, _)
 
   def firstMondayBefore = firstWeekdayBeforeDate(Monday, _)
-
   def firstMondayAtOrBefore = firstWeekdayAtOrBeforeDate(Monday, _)
 
   def previousBusinessDay(date: LocalDate) = {

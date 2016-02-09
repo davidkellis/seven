@@ -1,10 +1,10 @@
 package com.github.davidkellis.seven.domain
 
-import CoreTypes.{Decimal, SecurityId}
+import CoreTypes.{Decimal, IntegerId}
 import org.joda.time.DateTime
 
 case class EodBar(
-                   securityId: SecurityId,
+                   securityId: IntegerId,
                    date: DateTime,
                    open: Decimal,
                    high: Decimal,

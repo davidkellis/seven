@@ -1,7 +1,7 @@
 package com.github.davidkellis.seven.data
 
 import com.github.davidkellis.seven.domain._
-import CoreTypes.SecurityId
+import CoreTypes.IntegerId
 import org.joda.time.DateTime
 import scalikejdbc._
 
@@ -34,9 +34,9 @@ trait Dao {
   def findExchanges(exchangeLabels: Seq[String]): Seq[Exchange]
   def findSecurities(symbols: Seq[String], exchanges: Seq[Exchange]): Seq[Security]
 
-//  def findEodBars(securityId: SecurityId, earliestTime: DateTime, latestTime: DateTime): Seq[EodBar]
-//  def findMostRecentEodBar(securityId: SecurityId, time: DateTime): Option[EodBar]
-//  def findMostRecentEodBarPriorTo(securityId: SecurityId, time: DateTime): Option[EodBar]
+//  def findEodBars(securityId: IntegerId, earliestTime: DateTime, latestTime: DateTime): Seq[EodBar]
+//  def findMostRecentEodBar(securityId: IntegerId, time: DateTime): Option[EodBar]
+//  def findMostRecentEodBarPriorTo(securityId: IntegerId, time: DateTime): Option[EodBar]
 }
 
 class PostgresDao() extends Dao {
@@ -47,12 +47,14 @@ class PostgresDao() extends Dao {
   }
 
   def findExchanges(exchangeLabels: Seq[String])(implicit session: DBSession = AutoSession): Seq[Exchange] = {
-    sql"select * from exchanges where label in (${exchangeLabels})".map(toExchange(_)).list.apply()
+    sql"select * from exchanges where label in (${exchangeLabels})".
+      map(toExchange(_)).list.apply()
   }
 
   def findSecurities(symbols: Seq[String], exchanges: Seq[Exchange])(implicit session: DBSession = AutoSession): Seq[Security] = {
     val exchangeIds = exchanges.map(_.id)
-    sql"select * from securities where symbol in (${symbols}) and exchange_id in (${exchangeIds})".map(toSecurity(_)).list.apply()
+    sql"select * from securities where symbol in (${symbols}) and exchange_id in (${exchangeIds})".
+      map(toSecurity(_)).list.apply()
   }
 
   def toExchange(rs: WrappedResultSet): Exchange = {
