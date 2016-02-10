@@ -7,6 +7,7 @@ import com.github.davidkellis.seven.Time.Timestamp
 object CoreTypes {
   type Decimal = Double
   type IntegerId = Long
+  type ShareQuantity = Int
 
   type OrderQueue = scala.collection.mutable.Set[Order]
   type OrderHistory = util.TreeMap[Timestamp, Order]

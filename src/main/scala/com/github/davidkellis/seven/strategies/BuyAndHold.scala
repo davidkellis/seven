@@ -3,7 +3,7 @@ package com.github.davidkellis.seven.strategies
 import com.github.davidkellis.seven.Time
 import com.github.davidkellis.seven.Time.January
 import com.github.davidkellis.seven.data.Dao
-import com.github.davidkellis.seven.domain.CoreTypes.TradingEvent
+import com.github.davidkellis.seven.domain.CoreTypes.{ShareQuantity, TradingEvent}
 import com.github.davidkellis.seven.domain._
 import org.joda.time.DateTime
 
@@ -15,20 +15,24 @@ object BuyAndHold {
   case object NotInvested extends CurrentState
   case object Invested extends CurrentState
 
-  class BuyAndHoldSingle(account: BrokerageAccount, security: Security) extends Strategy {
+  class BuyAndHoldSingleStock(account: BrokerageAccount, quotationService: QuotationService, security: Security) extends Strategy {
     var currentState = NotInvested
 
     def evaluate(time: DateTime, event: TradingEvent): Unit = {
       currentState match {
         case NotInvested =>
-          if (canAfford(security, account)) {
-            account.buyStock(security, )
-          }
+          val qty = maxSharesAccountCanAfford(account, quotationService, security, time)
+          account.marketBuyStock(security, qty, time)
         case Invested =>
       }
     }
 
-    private def canAfford(security: Security, account: BrokerageAccount): Boolean = ???
+    // todo, complete this implementation
+    private def maxSharesAccountCanAfford(account: BrokerageAccount, quotationService: QuotationService, security: Security, time: DateTime): ShareQuantity = {
+      for {
+        price <- quotationService.market(Buy, security, time)
+      } yield Math.floor(account.portfolio.cashOnHand / price)
+    }
   }
 
   object Scenarios {
@@ -45,7 +49,7 @@ object BuyAndHold {
         portfolio = new Portfolio(10000.0)
         account = new BrokerageAccount(broker, portfolio)
         appl <- FindSecurity("AAPL", exchange)
-        strategy = new BuyAndHoldSingle(account, appl)
+        strategy = new BuyAndHoldSingleStock(account, appl)
         trial = new Trial(
           Time.datetime(2000, January, 1),
           Time.datetime(2016, January, 1),

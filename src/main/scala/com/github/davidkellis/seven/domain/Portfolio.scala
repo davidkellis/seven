@@ -4,7 +4,7 @@ import CoreTypes.{IntegerId, Decimal}
 
 case class CumulativePosition(security: Security, longQty: Long, shortQty: Long)
 
-class Portfolio(cashOnHand: Decimal,
-                positions: Map[IntegerId, CumulativePosition] = Map.empty[IntegerId, CumulativePosition]) {
+class Portfolio(var cashOnHand: Decimal,
+                var positions: Map[IntegerId, CumulativePosition] = Map.empty[IntegerId, CumulativePosition]) {
 
 }
