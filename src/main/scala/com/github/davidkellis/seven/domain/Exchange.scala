@@ -63,13 +63,13 @@ class Exchange(val id: Long,
     Success()
   }
 
-  def fillOrders(time: DateTime, fillPriceFn: FillPriceFn): Try[Unit] = {
+  def fillOrders(previousTime: DateTime, currentTime: DateTime, fillPriceFn: FillPriceFn): Try[Unit] = {
     // 1. cancel orders
 
     // 2. fill orders
 
 
-    moveOrdersToOrderBook(time)
+    moveOrdersToOrderBook(currentTime)
 
     // todo:
 

@@ -17,18 +17,18 @@ class BrokerageAccount(val broker: Broker,
     broker.placeOrder(this, order)
   }
 
-  def marketSellStock(security: Security, qty: ShareQuantity, time: Timestamp): Try[Order] = {
+  def marketSellStock(security: Security, qty: ShareQuantity, time: DateTime): Try[Order] = {
     val order = Order.buildMarketSell(this, Equity, security.id, qty, time)
     broker.placeOrder(this, order)
   }
 
-  def limitBuyStock(security: Security, qty: ShareQuantity, limitPrice: Decimal, time: Timestamp): Try[Order] = {
-    val order = Order.buildLimitBuy(this, Equity, security.id, qty, time, Some(limitPrice))
+  def limitBuyStock(security: Security, qty: ShareQuantity, limitPrice: Decimal, time: DateTime): Try[Order] = {
+    val order = Order.buildLimitBuy(this, Equity, security.id, qty, limitPrice, time)
     broker.placeOrder(this, order)
   }
 
-  def limitSellStock(security: Security, qty: ShareQuantity, limitPrice: Decimal, time: Timestamp): Try[Order] = {
-    val order = Order.buildLimitSell(this, Equity, security.id, qty, time, Some(limitPrice))
+  def limitSellStock(security: Security, qty: ShareQuantity, limitPrice: Decimal, time: DateTime): Try[Order] = {
+    val order = Order.buildLimitSell(this, Equity, security.id, qty, limitPrice, time)
     broker.placeOrder(this, order)
   }
 }

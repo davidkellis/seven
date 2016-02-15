@@ -1,9 +1,9 @@
 package com.github.davidkellis.seven.domain
 
-import com.github.davidkellis.seven.data.Dao.dynamicDao
+import com.github.davidkellis.seven.data.Dao.dao
 
 object FindExchange {
   def apply(exchangeLabel: String): Option[Exchange] = {
-    dynamicDao.findExchanges(Array(exchangeLabel)).headOption
+    dao.findExchanges(Array(exchangeLabel)).headOption
   }
 }

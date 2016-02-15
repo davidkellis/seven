@@ -2,14 +2,12 @@ package com.github.davidkellis.seven
 
 import java.io.File
 
-import com.github.davidkellis.seven.data.{PostgresDao, Dao}
+import com.github.davidkellis.seven.data.{PostgresDaoForScalikeJdbc, Dao}
 import com.github.davidkellis.seven.strategies.BuyAndHold
 import com.typesafe.config.{ConfigFactory, Config}
 import net.sf.ehcache.CacheManager
 import org.joda.time.DateTime
 import org.rogach.scallop.ScallopConf
-import scalikejdbc._
-import scalikejdbc.config._
 
 object Main {
   class RuntimeArgs(arguments: Seq[String]) extends ScallopConf(arguments) {
@@ -32,11 +30,11 @@ object Main {
     val logLevel = config.getString("log_level")
     val dbLogLevel = config.getString("database_log_level")
 
-    DBs.setupAll()
-
-    Dao.withDao(new PostgresDao()) {
+    val dao = PostgresDaoForScalikeJdbc(config)
+    Dao.withDao(dao) {
       run(runtimeArgs)
     }
+    dao.close()
 
     cleanupCache()
   }

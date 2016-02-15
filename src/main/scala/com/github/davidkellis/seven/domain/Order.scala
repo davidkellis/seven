@@ -70,7 +70,12 @@ object Order {
   def buildMarketBuy(account: BrokerageAccount, securityType: SecurityType, securityId: IntegerId, qty: ShareQuantity, time: DateTime) =
     Order(Some(java.util.UUID.randomUUID), account, Open, securityType, Market, Buy, GoodForDay, securityId, qty, false, timestamp(time), None, None, None, None, None, None, None)
 
-  val buildMarketSell = Order(Some(java.util.UUID.randomUUID), _, Open, _, Market, Sell, GoodForDay, _, _, false, _, None, None, None, None, None, None, None)
-  val buildLimitBuy = Order(Some(java.util.UUID.randomUUID), _, Open, _, Limit, Buy, GoodForDay, _, _, false, _, None, None, None, None, _, None, None)
-  val buildLimitSell = Order(Some(java.util.UUID.randomUUID), _, Open, _, Limit, Sell, GoodForDay, _, _, false, _, None, None, None, None, _, None, None)
+  def buildMarketSell(account: BrokerageAccount, securityType: SecurityType, securityId: IntegerId, qty: ShareQuantity, time: DateTime) =
+    Order(Some(java.util.UUID.randomUUID), account, Open, securityType, Market, Sell, GoodForDay, securityId, qty, false, timestamp(time), None, None, None, None, None, None, None)
+
+  def buildLimitBuy(account: BrokerageAccount, securityType: SecurityType, securityId: IntegerId, qty: ShareQuantity, limitPrice: Decimal, time: DateTime) =
+    Order(Some(java.util.UUID.randomUUID), account, Open, securityType, Limit, Buy, GoodForDay, securityId, qty, false, timestamp(time), None, None, None, None, Some(limitPrice), None, None)
+
+  def buildLimitSell(account: BrokerageAccount, securityType: SecurityType, securityId: IntegerId, qty: ShareQuantity, limitPrice: Decimal, time: DateTime) =
+    Order(Some(java.util.UUID.randomUUID), account, Open, securityType, Limit, Sell, GoodForDay, securityId, qty, false, timestamp(time), None, None, None, None, Some(limitPrice), None, None)
 }

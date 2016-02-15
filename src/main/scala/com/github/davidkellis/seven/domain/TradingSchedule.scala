@@ -76,9 +76,11 @@ object TradingSchedule {
     }
   }
 
+  // returns a sequence of days, starting on startDate and ending no later than endDate, in which the trading schedule for each day is non-empty
   def tradingDays(startDate: LocalDate, endDate: LocalDate, tradingSchedule: TradingSchedule): Seq[LocalDate] =
     tradingDays(startDate, tradingSchedule).takeWhile(isBeforeOrEqual(_, endDate))
 
+  // returns an infinite sequence of days, starting on startDate, in which the trading schedule for each day is non-empty
   def tradingDays(startDate: LocalDate, tradingSchedule: TradingSchedule): Seq[LocalDate] =
     infPeriodicalDateSeries(startDate, Days.days(1)).filter(isTradingDay(_, tradingSchedule))
 

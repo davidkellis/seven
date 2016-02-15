@@ -112,6 +112,7 @@ object Time {
     new DateTime(year, intMonth(month), day, hour, minute, second, EasternTimeZone)
   def datetime(date: LocalDate): DateTime = datetime(date.getYear, date.getMonthOfYear, date.getDayOfMonth)
   def datetime(date: LocalDate, hour: Int, minute: Int, second: Int): DateTime = datetime(date.getYear, date.getMonthOfYear, date.getDayOfMonth).withTime(hour, minute, second, 0)
+  def datetime(date: LocalDate, time: LocalTime): DateTime = datetime(date.getYear, date.getMonthOfYear, date.getDayOfMonth).withTime(time)
   def datetime(datestamp: Datestamp): DateTime = {
     val ds = datestamp.toString
     val year = ds.substring(0, 4).toInt
@@ -129,6 +130,8 @@ object Time {
     val second = ts.substring(12, 14).toInt
     datetime(year, month, day, hour, minute, second)
   }
+
+  def localtime(hour: Int, minute: Int, second: Int): LocalTime = new LocalTime(hour, minute, second)
 
   def timestamp(date: LocalDate): Timestamp = datetime(date).toString("yyyyMMddHHmmss").toLong
   def timestamp(datetime: ReadableDateTime): Timestamp = datetime.toString("yyyyMMddHHmmss").toLong
@@ -186,9 +189,11 @@ object Time {
   def compareDateTimes(t1: DateTime, t2: DateTime): Int = t1.compareTo(t2)
   def compareDateTimes(d1: LocalDate, d2: LocalDate): Int = d1.compareTo(d2)
 
+  // returns true if t1 <= t2
   def isBeforeOrEqual(t1: DateTime, t2: DateTime): Boolean = compareDateTimes(t1, t2) <= 0
   def isBeforeOrEqual(d1: LocalDate, d2: LocalDate): Boolean = compareDateTimes(d1, d2) <= 0
 
+  // returns true if t1 >= t2
   def isAfterOrEqual(t1: DateTime, t2: DateTime): Boolean = compareDateTimes(t1, t2) >= 0
   def isAfterOrEqual(d1: LocalDate, d2: LocalDate): Boolean = compareDateTimes(d1, d2) >= 0
 

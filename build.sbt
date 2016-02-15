@@ -24,9 +24,9 @@ libraryDependencies  ++= Seq(
 
   "org.scalikejdbc" %% "scalikejdbc" % "2.3.4",
   "org.scalikejdbc" %% "scalikejdbc-config"  % "2.3.4",
-  "org.postgresql" % "postgresql" % "9.4.1207.jre7"
+  "org.postgresql" % "postgresql" % "9.4.1207.jre7",
+  "com.zaxxer" % "HikariCP" % "2.4.3"
 
-//  "postgresql" % "postgresql" % "9.1-901.jdbc4",
 //  "org.json4s" %% "json4s-jackson" % "3.2.9",
 //  "com.lambdaworks" % "jacks_2.11" % "2.3.3",
 //  "net.sandrogrzicic" %% "scalabuff-runtime" % "1.3.8",

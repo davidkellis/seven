@@ -1,37 +1,54 @@
 package com.github.davidkellis.seven.strategies
 
-import com.github.davidkellis.seven.Time
+import com.github.davidkellis.seven.{MathUtil, Time}
 import com.github.davidkellis.seven.Time.January
 import com.github.davidkellis.seven.data.Dao
 import com.github.davidkellis.seven.domain.CoreTypes.{ShareQuantity, TradingEvent}
 import com.github.davidkellis.seven.domain._
-import org.joda.time.DateTime
+import org.joda.time.{Period, DateTime}
 
-import Dao.dynamicDao
+import Dao.dao
 
 object BuyAndHold {
 
   trait CurrentState
   case object NotInvested extends CurrentState
   case object Invested extends CurrentState
+  case object ExitedPosition extends CurrentState
 
-  class BuyAndHoldSingleStock(account: BrokerageAccount, quotationService: QuotationService, security: Security) extends Strategy {
-    var currentState = NotInvested
+  class BuyAndHoldSingleStock(quotationService: QuotationService, account: BrokerageAccount, security: Security, holdTime: Period) extends Strategy {
+    var currentState: CurrentState = NotInvested
+    var entryTime: Option[DateTime] = None[DateTime]
+    var exitTime: Option[DateTime] = None[DateTime]
 
-    def evaluate(time: DateTime, event: TradingEvent): Unit = {
+    def evaluate(previousTime: DateTime, currentTime: DateTime, event: TradingEvent): Unit = {
       currentState match {
         case NotInvested =>
-          val qty = maxSharesAccountCanAfford(account, quotationService, security, time)
-          account.marketBuyStock(security, qty, time)
+          val qtyOpt = maxSharesAccountCanAfford(account, quotationService, security, currentTime)
+          qtyOpt.foreach { qty =>
+            account.marketBuyStock(security, qty, currentTime)
+            entryTime = Some(currentTime)
+            currentState = NotInvested
+          }
         case Invested =>
+          if (securityHasBeenHeldForLongEnough(currentTime, entryTime.get, holdTime)) {
+            account.marketSellStock(security, account.portfolio.longQty(security.id), currentTime)
+            exitTime = Some(currentTime)
+            currentState = ExitedPosition
+          }
       }
     }
 
-    // todo, complete this implementation
-    private def maxSharesAccountCanAfford(account: BrokerageAccount, quotationService: QuotationService, security: Security, time: DateTime): ShareQuantity = {
+    private def securityHasBeenHeldForLongEnough(currentTime: DateTime, entryTime: DateTime, holdTime: Period): Boolean = {
+      Time.isAfterOrEqual(currentTime, entryTime.plus(holdTime))
+    }
+
+    private def maxSharesAccountCanAfford(account: BrokerageAccount, quotationService: QuotationService, security: Security, time: DateTime): Option[ShareQuantity] = {
       for {
-        price <- quotationService.market(Buy, security, time)
-      } yield Math.floor(account.portfolio.cashOnHand / price)
+        sharePrice <- quotationService.market(Buy, security, time)
+        imaginaryMarketBuyOrder = Order.buildMarketBuy(account, Equity, security.id, MathUtil.intFloor(account.portfolio.cashOnHand / sharePrice), time)
+        cashAfterTransactionFees = account.portfolio.cashOnHand - account.broker.costOfTransactionFees(imaginaryMarketBuyOrder)
+      } yield MathUtil.intFloor(cashAfterTransactionFees / sharePrice)
     }
   }
 
@@ -49,25 +66,15 @@ object BuyAndHold {
         portfolio = new Portfolio(10000.0)
         account = new BrokerageAccount(broker, portfolio)
         appl <- FindSecurity("AAPL", exchange)
-        strategy = new BuyAndHoldSingleStock(account, appl)
+        simpleQuotationService = new SimpleQuotationService()
+        strategy = new BuyAndHoldSingleStock(simpleQuotationService, account, appl, Time.years(1))
         trial = new Trial(
           Time.datetime(2000, January, 1),
           Time.datetime(2016, January, 1),
+          Array(Time.localtime(12, 0, 0)),
           fillPriceFn
         )
-      } yield simulator.run(trial)
-
-//      val exchange = FindExchange("US")
-//      val broker = new ScottradeSim(exchange, 7.0)
-//      val portfolio = new Portfolio(10000.0)
-//      val account = new BrokerageAccount(broker, portfolio)
-//      val appl = dynamicDao.findSecurity("AAPL")
-//      val strategy = new BuyAndHoldSingle(account, appl)
-//      val trial = new Trial(
-//        Time.datetime(2000, January, 1),
-//        Time.datetime(2016, January, 1)
-//      )
-//      simulator.run(trial)
+      } yield simulator.run(Seq(exchange), strategy, trial)
     }
   }
 

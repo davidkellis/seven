@@ -12,3 +12,9 @@ trait QuotationService {
     case Sell | SellShort => bid(security, time)    // In our simplified world, a market sell order would sell at the bid price
   }
 }
+
+class SimpleQuotationService() extends QuotationService {
+  def bid(security: Security, time: DateTime): Option[Decimal] = ???
+
+  def ask(security: Security, time: DateTime): Option[Decimal] = ???
+}
