@@ -69,7 +69,7 @@ object BuyAndHold {
         simpleQuotationService = new SimpleQuotationService()
         strategy = new BuyAndHoldSingleStock(simpleQuotationService, account, appl, Time.years(1))
         trial = new Trial(
-          Time.datetime(2000, January, 1),
+          Time.datetime(2015, January, 1),
           Time.datetime(2016, January, 1),
           Array(Time.localtime(12, 0, 0)),
           fillPriceFn
