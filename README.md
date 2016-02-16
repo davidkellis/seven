@@ -2,6 +2,10 @@
 
 Trading simulator (attempt #7). This time in Scala.
 
+Seven is my seventh attempt at building an easy to use backtesting tool. One of the primary design goals is to support trading a real account.
+
+Seven is similar to Quantopian's zipline backtesting tool (see https://github.com/quantopian/zipline).
+
 ## Setup
 
 ### Prerequisites
