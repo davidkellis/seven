@@ -3,6 +3,7 @@ package com.github.davidkellis.seven.domain
 import java.util
 
 import com.github.davidkellis.seven.Time.Timestamp
+import org.joda.time.DateTime
 
 object CoreTypes {
   type Decimal = Double
@@ -12,7 +13,7 @@ object CoreTypes {
   type OrderQueue = scala.collection.mutable.Set[Order]
   type OrderHistory = util.TreeMap[Timestamp, Order]
 
-  type FillPriceFn = (Order) => Decimal
+  type FillPriceFn = (Order, DateTime) => Option[Decimal]
 
   trait TradingEvent
   case object ReEvaluate extends TradingEvent

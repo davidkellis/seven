@@ -3,7 +3,7 @@ package com.github.davidkellis.seven.strategies
 import com.github.davidkellis.seven.{MathUtil, Time}
 import com.github.davidkellis.seven.Time.January
 import com.github.davidkellis.seven.data.Dao
-import com.github.davidkellis.seven.domain.CoreTypes.{ShareQuantity, TradingEvent}
+import com.github.davidkellis.seven.domain.CoreTypes.{FillPriceFn, ShareQuantity, TradingEvent}
 import com.github.davidkellis.seven.domain._
 import org.joda.time.{Period, DateTime}
 
@@ -55,7 +55,7 @@ object BuyAndHold {
   object Scenarios {
     def runSingleBuyAndHoldTrial(): Unit = {
       val simulator = new Simulator()
-      val fillPriceFn = (order: Order) => order.action match {
+      val fillPriceFn: FillPriceFn = (order: Order, currentTime: DateTime) => order.action match {
         case Buy => ???
         case Sell => ???
         case _ => throw new Exception("Unknown order action. Unable to calculate simulated fill price.")

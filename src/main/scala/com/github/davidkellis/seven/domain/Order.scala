@@ -10,7 +10,7 @@ import org.joda.time.DateTime
 
 sealed trait OrderStatus
 case object Open extends OrderStatus
-case object Executed extends OrderStatus
+case object Filled extends OrderStatus
 case object Cancelled extends OrderStatus
 case object CancelRequested extends OrderStatus
 case object Expired extends OrderStatus
@@ -57,7 +57,7 @@ case class Order(
                   allOrNone: Boolean,
                   timePlaced: Timestamp,
                   var filledQuantity: Option[Long],
-                  var executedPrice: Option[Decimal],
+                  var filledPrice: Option[Decimal],
                   var commission: Option[Decimal],
                   var timeExecuted: Option[Timestamp],
                   var limitPrice: Option[Decimal],
@@ -78,4 +78,11 @@ object Order {
 
   def buildLimitSell(account: BrokerageAccount, securityType: SecurityType, securityId: IntegerId, qty: ShareQuantity, limitPrice: Decimal, time: DateTime) =
     Order(Some(java.util.UUID.randomUUID), account, Open, securityType, Limit, Sell, GoodForDay, securityId, qty, false, timestamp(time), None, None, None, None, Some(limitPrice), None, None)
+
+  def markFilled(order: Order, fillPrice: Decimal, commission: Decimal): Unit = {
+    order.status = Filled
+    order.filledQuantity = Some(order.quantity)
+    order.filledPrice = Some(fillPrice)
+    order.commission = Some(commission)
+  }
 }

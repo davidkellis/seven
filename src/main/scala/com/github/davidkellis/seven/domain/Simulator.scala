@@ -15,6 +15,7 @@ class Simulator() {
         previousTime = currentTime
         currentTime = localDate.toDateTime(localTime, Time.EasternTimeZone)
         strategy.evaluate(previousTime, currentTime, CoreTypes.ReEvaluate)
+        // todo: perhaps increment currentTime by some small amount of time here
         fillOrders(exchanges, trial.fillPriceFn, previousTime, currentTime)
       }
     }
@@ -22,7 +23,7 @@ class Simulator() {
 
   def fillOrders(exchanges: Seq[Exchange], fillPriceFn: FillPriceFn, previousTime: DateTime, currentTime: DateTime): Unit = {
     exchanges.foreach { exchange =>
-      exchange.fillOrders(previousTime, currentTime, fillPriceFn)
+      exchange.fillOrders(fillPriceFn, previousTime, currentTime)
     }
   }
 }
