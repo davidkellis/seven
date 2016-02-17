@@ -6,36 +6,6 @@ import org.joda.time.DateTime
 import scala.collection.mutable
 import scala.util.{Success, Try}
 
-object OrderBook {
-  def empty(): OrderBook = new OrderBook()
-}
-class OrderBook() {
-  def add(order: Order): Unit = ???
-  def cancel(order: Order): Unit = ???
-}
-
-class ConsolidatedOrderBook() {
-  var orderBooks = mutable.Map.empty[IntegerId, OrderBook]
-
-  def add(order: Order): Unit = {
-    val orderBook = getOrderBook(order.securityId).getOrElse(addNewOrderBook(order.securityId))
-    orderBook.add(order)
-  }
-
-  def cancel(order: Order): Unit = {
-    val orderBook = getOrderBook(order.securityId).getOrElse(addNewOrderBook(order.securityId))
-    orderBook.cancel(order)
-  }
-
-  private def getOrderBook(securityId: IntegerId): Option[OrderBook] = orderBooks.get(securityId)
-
-  private def addNewOrderBook(securityId: IntegerId): OrderBook = {
-    val newOrderBook = OrderBook.empty
-    orderBooks += (securityId -> newOrderBook)
-    newOrderBook
-  }
-}
-
 object Exchange {
   def unapply(exchange: Exchange): Option[(Long, String, String, Boolean, Option[Long])] = {
     Some(
@@ -56,7 +26,7 @@ class Exchange(val id: Long,
                val compositeExchangeId: Option[Long]) {
   val orderQueue = mutable.ListBuffer.empty[Order]
   val orderCancellations = mutable.Set.empty[Order]
-  var consolidatedOrderBook = new ConsolidatedOrderBook()
+  var ordersWaitingToBeFilled = mutable.Set.empty[Order]
 
   def placeOrder(order: Order): Try[Unit] = {
     this.synchronized {
@@ -83,19 +53,18 @@ class Exchange(val id: Long,
     }
 
     // 2. cancel orders
-    val liveOrders = queuedOrders.filterNot(ordersToCancel.contains(_))
-    ordersToCancel.foreach(consolidatedOrderBook.cancel(_))
+    val newOrders = queuedOrders.filterNot(ordersToCancel.contains(_))
+    this.synchronized {
+      ordersWaitingToBeFilled --= ordersToCancel
+    }
 
     // 3. fill new orders or put them in the consolidated order book
-    liveOrders.foreach(fillOrAddToOrderBook(fillPriceFn, _, currentTime))
+    val (filledOrders, unfilledOrders) = newOrders.partition(tryFill(fillPriceFn, _, currentTime))
+    this.synchronized {
+      ordersWaitingToBeFilled ++= unfilledOrders
+    }
 
     Success()
-  }
-
-  private def fillOrAddToOrderBook(fillPriceFn: FillPriceFn, order: Order, currentTime: DateTime): Unit = {
-    if (!tryFill(fillPriceFn, order, currentTime)) {
-      consolidatedOrderBook.add(order)
-    }
   }
 
   private def tryFill(fillPriceFn: FillPriceFn, order: Order, currentTime: DateTime): Boolean = {
@@ -105,9 +74,6 @@ class Exchange(val id: Long,
       Order.markFilled(order, fillPrice, order.account.broker.costOfTransactionFees(order))
 
       order.account.broker.notifyOrderFilled(order)
-
-      val nextPortfolio = adjustPortfolioFromFilledOrder(trial, portfolio, filledOrder)
-      val nextTransactions = transactions :+ filledOrder
 
       true
     } else {
@@ -130,7 +96,7 @@ class Exchange(val id: Long,
   }
 
   private def isMarketBuyFillable(fillPriceFn: FillPriceFn, order: Order, currentTime: DateTime): Boolean = {
-    val costOpt = purchaseCost(order.account.broker, fillPriceFn, order, currentTime)
+    val costOpt = Order.purchaseCost(order.account.broker, fillPriceFn, order, currentTime)
 
     // todo: I think this requirement should be removed because http://www.21stcenturyinvestoreducation.com/page/tce/courses/course-101/005/001-cash-vs-margin.html
     //       says even cash accounts can temporarily have a negative cash balance as long as the necessary funds are deposited within 3 business days after
@@ -140,7 +106,7 @@ class Exchange(val id: Long,
   }
 
   private def isMarketSellFillable(fillPriceFn: FillPriceFn, order: Order, currentTime: DateTime): Boolean = {
-    val proceedsOpt = saleProceeds(order.account.broker, fillPriceFn, order, currentTime)
+    val proceedsOpt = Order.saleProceeds(order.account.broker, fillPriceFn, order, currentTime)
     proceedsOpt.map(_ >= 0.0).getOrElse(false)
   }
 
@@ -153,18 +119,4 @@ class Exchange(val id: Long,
     val fillPrice = fillPriceFn(order, currentTime)
     fillPrice.map(_ >= order.limitPrice.get).getOrElse(false) && isMarketSellFillable(fillPriceFn, order, currentTime)
   }
-
-
-  private def purchaseCost(broker: Broker, fillPriceFn: FillPriceFn, order: Order, currentTime: DateTime): Option[Decimal] = {
-    fillPriceFn(order, currentTime).map { price =>
-      (order.quantity * price) + broker.costOfTransactionFees(order)
-    }
-  }
-
-  private def saleProceeds(broker: Broker, fillPriceFn: FillPriceFn, order: Order, currentTime: DateTime): Option[Decimal] = {
-    fillPriceFn(order, currentTime).map { price =>
-      (order.quantity * price) - broker.costOfTransactionFees(order)
-    }
-  }
-
 }

@@ -11,7 +11,6 @@ object CoreTypes {
   type ShareQuantity = Int
 
   type OrderQueue = scala.collection.mutable.Set[Order]
-  type OrderHistory = util.TreeMap[Timestamp, Order]
 
   type FillPriceFn = (Order, DateTime) => Option[Decimal]
 

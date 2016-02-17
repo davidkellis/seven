@@ -2,7 +2,7 @@ package com.github.davidkellis.seven.domain
 
 import java.util.UUID
 
-import com.github.davidkellis.seven.domain.CoreTypes.{ShareQuantity, IntegerId, Decimal}
+import com.github.davidkellis.seven.domain.CoreTypes._
 import com.github.davidkellis.seven.Time.{Timestamp, timestamp}
 import org.joda.time.DateTime
 
@@ -56,7 +56,7 @@ case class Order(
                   quantity: ShareQuantity,
                   allOrNone: Boolean,
                   timePlaced: Timestamp,
-                  var filledQuantity: Option[Long],
+                  var filledQuantity: Option[ShareQuantity],
                   var filledPrice: Option[Decimal],
                   var commission: Option[Decimal],
                   var timeExecuted: Option[Timestamp],
@@ -85,4 +85,18 @@ object Order {
     order.filledPrice = Some(fillPrice)
     order.commission = Some(commission)
   }
+
+
+  def purchaseCost(broker: Broker, fillPriceFn: FillPriceFn, order: Order, currentTime: DateTime): Option[Decimal] = {
+    fillPriceFn(order, currentTime).map { price =>
+      (order.quantity * price) + broker.costOfTransactionFees(order)
+    }
+  }
+
+  def saleProceeds(broker: Broker, fillPriceFn: FillPriceFn, order: Order, currentTime: DateTime): Option[Decimal] = {
+    fillPriceFn(order, currentTime).map { price =>
+      (order.quantity * price) - broker.costOfTransactionFees(order)
+    }
+  }
+
 }
