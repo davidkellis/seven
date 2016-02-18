@@ -14,6 +14,11 @@ class Simulator() {
       tradingTimes.foreach { localTime =>
         previousTime = currentTime
         currentTime = localDate.toDateTime(localTime, Time.EasternTimeZone)
+
+        // todo: adjust (1) all open orders and order cancellations tracked by the exchanges, as well as (2) the portfolio managed by the strategy
+        // for splits and dividends that have gone into effect at some point within the interval (previousTime, currentTime]
+
+        // todo: log the current value of the portfolio managed by the strategy
         strategy.evaluate(previousTime, currentTime, CoreTypes.ReEvaluate)
         // todo: perhaps increment currentTime by some small amount of time here
         fillOrders(exchanges, trial.fillPriceFn, previousTime, currentTime)
