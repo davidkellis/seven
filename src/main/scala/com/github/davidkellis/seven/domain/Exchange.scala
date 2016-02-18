@@ -71,7 +71,7 @@ class Exchange(val id: Long,
     if (isOrderFillable(fillPriceFn, order, currentTime)) {       // if the order is fillable, then fill it, and continue
       val fillPrice = fillPriceFn(order, currentTime).get         // isOrderFillable implies that this expression returns a Decimal
 
-      Order.markFilled(order, fillPrice, order.account.broker.costOfTransactionFees(order))
+      Order.markFilled(order, fillPrice, order.account.broker.costOfTransactionFees(order), currentTime)
 
       order.account.broker.notifyOrderFilled(order)
 

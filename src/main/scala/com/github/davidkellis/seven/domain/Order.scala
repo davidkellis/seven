@@ -2,6 +2,7 @@ package com.github.davidkellis.seven.domain
 
 import java.util.UUID
 
+import com.github.davidkellis.seven.Time
 import com.github.davidkellis.seven.domain.CoreTypes._
 import com.github.davidkellis.seven.Time.{Timestamp, timestamp}
 import org.joda.time.DateTime
@@ -58,14 +59,13 @@ case class Order(
                   timePlaced: Timestamp,
                   var filledQuantity: Option[ShareQuantity],
                   var filledPrice: Option[Decimal],
-                  var commission: Option[Decimal],
-                  var timeExecuted: Option[Timestamp],
+                  var commissionAndFees: Option[Decimal],
+                  var timeFilled: Option[Timestamp],
                   var limitPrice: Option[Decimal],
                   var stopPrice: Option[Decimal],
                   var stopLimitPrice: Option[Decimal]
                 )
 
-// todo, turn the methods buildMarketBuy, buildMarketSell, into proper methods, with named parameters
 object Order {
   def buildMarketBuy(account: BrokerageAccount, securityType: SecurityType, securityId: IntegerId, qty: ShareQuantity, time: DateTime) =
     Order(Some(java.util.UUID.randomUUID), account, Open, securityType, Market, Buy, GoodForDay, securityId, qty, false, timestamp(time), None, None, None, None, None, None, None)
@@ -79,13 +79,18 @@ object Order {
   def buildLimitSell(account: BrokerageAccount, securityType: SecurityType, securityId: IntegerId, qty: ShareQuantity, limitPrice: Decimal, time: DateTime) =
     Order(Some(java.util.UUID.randomUUID), account, Open, securityType, Limit, Sell, GoodForDay, securityId, qty, false, timestamp(time), None, None, None, None, Some(limitPrice), None, None)
 
-  def markFilled(order: Order, fillPrice: Decimal, commission: Decimal): Unit = {
+  def markFilled(order: Order, fillPrice: Decimal, commissionAndFees: Decimal, timeFilled: DateTime): Unit = {
     order.status = Filled
     order.filledQuantity = Some(order.quantity)
     order.filledPrice = Some(fillPrice)
-    order.commission = Some(commission)
+    order.commissionAndFees = Some(commissionAndFees)
+    order.timeFilled = Some(Time.timestamp(timeFilled))
   }
 
+
+  def purchaseCost(order: Order): Decimal = {
+    (order.quantity * order.filledPrice.get) + order.commissionAndFees.get
+  }
 
   def purchaseCost(broker: Broker, fillPriceFn: FillPriceFn, order: Order, currentTime: DateTime): Option[Decimal] = {
     fillPriceFn(order, currentTime).map { price =>
@@ -93,10 +98,15 @@ object Order {
     }
   }
 
+  def saleProceeds(order: Order): Decimal = {
+    (order.quantity * order.filledPrice.get) - order.commissionAndFees.get
+  }
+
   def saleProceeds(broker: Broker, fillPriceFn: FillPriceFn, order: Order, currentTime: DateTime): Option[Decimal] = {
     fillPriceFn(order, currentTime).map { price =>
       (order.quantity * price) - broker.costOfTransactionFees(order)
     }
   }
+
 
 }
