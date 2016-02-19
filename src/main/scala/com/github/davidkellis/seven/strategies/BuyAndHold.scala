@@ -74,7 +74,7 @@ object BuyAndHold {
           Array(Time.localtime(12, 0, 0)),
           fillPriceFn
         )
-      } yield simulator.run(Seq(exchange), strategy, trial)
+      } yield simulator.run(Seq(exchange), Seq(account), strategy, trial)
     }
   }
 
