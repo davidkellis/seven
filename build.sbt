@@ -1,31 +1,30 @@
 // modeled this build.sbt off of http://www.typesafe.com/activator/template/scala-library-seed#code/build.sbt
 
-mainClass in assembly := Some("com.github.davidkellis.Main")
+mainClass in assembly := Some("davidkellis.seven.Main")
 
 name := "seven"
 
 version := "1.0.0"
 
-scalaVersion := "2.11.7"
+scalaVersion := "2.12.1"
 
 libraryDependencies  ++= Seq(
-  "org.scalatest" % "scalatest_2.11" % "2.2.4" % "test",
+  "org.scalactic" %% "scalactic" % "3.0.1",
+  "org.scalatest" %% "scalatest" % "3.0.1" % "test",
 
-  "org.log4s" %% "log4s" % "1.2.1",
+  "org.log4s" %% "log4s" % "1.3.4",
 
-  "joda-time" % "joda-time" % "2.9.1",
-  "org.joda" % "joda-convert" % "1.8",
-  "com.github.nscala-time" %% "nscala-time" % "2.6.0",
+  "org.threeten" % "threeten-extra" % "1.0",
 
-  "net.sf.ehcache" % "ehcache" % "2.10.1",
+  "org.ehcache" % "ehcache" % "3.2.0",
 
-  "org.rogach" %% "scallop" % "0.9.5",
-  "com.typesafe" % "config" % "1.3.0",
+  "org.rogach" %% "scallop" % "2.0.6",
+  "com.typesafe" % "config" % "1.3.1",
 
-  "org.scalikejdbc" %% "scalikejdbc" % "2.3.4",
-  "org.scalikejdbc" %% "scalikejdbc-config"  % "2.3.4",
-  "org.postgresql" % "postgresql" % "9.4.1207.jre7",
-  "com.zaxxer" % "HikariCP" % "2.4.3"
+  "org.scalikejdbc" %% "scalikejdbc" % "2.5.0",
+  "org.scalikejdbc" %% "scalikejdbc-config"  % "2.5.0",
+  "org.postgresql" % "postgresql" % "9.4.1212",
+  "com.zaxxer" % "HikariCP" % "2.5.1"
 
 //  "org.json4s" %% "json4s-jackson" % "3.2.9",
 //  "com.lambdaworks" % "jacks_2.11" % "2.3.3",
